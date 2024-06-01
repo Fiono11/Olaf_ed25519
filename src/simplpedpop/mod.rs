@@ -1,9 +1,8 @@
 mod errors;
 mod types;
 
+pub use self::types::{AllMessage, Parameters, SPPOutput};
 use crate::{Identifier, SigningKeypair, ThresholdPublicKey, VerifyingShare, GENERATOR};
-
-pub use self::types::Parameters;
 use curve25519_dalek::{edwards::CompressedEdwardsY, traits::Identity, EdwardsPoint, Scalar};
 use ed25519::signature::{SignerMut, Verifier};
 use ed25519_dalek::{hazmat::ExpandedSecretKey, SigningKey, VerifyingKey};
@@ -12,8 +11,8 @@ use merlin::Transcript;
 use rand::{thread_rng, RngCore};
 use rand_core::OsRng;
 use types::{
-    AllMessage, MessageContent, PolynomialCommitment, SPPOutput, SPPOutputMessage,
-    SecretPolynomial, SecretShare, ENCRYPTION_NONCE_LENGTH, RECIPIENTS_HASH_LENGTH,
+    MessageContent, PolynomialCommitment, SPPOutputMessage, SecretPolynomial, SecretShare,
+    ENCRYPTION_NONCE_LENGTH, RECIPIENTS_HASH_LENGTH,
 };
 
 impl SigningKeypair {

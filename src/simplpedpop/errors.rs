@@ -46,7 +46,7 @@ pub enum SPPError {
     ErrorDeserializingEncryptedShare,
 }
 
-/*#[cfg(test)]
+#[cfg(test)]
 mod tests {
     use crate::simplpedpop::errors::SPPError;
     use crate::simplpedpop::types::{
@@ -56,7 +56,7 @@ mod tests {
     use crate::{SigningKeypair, GENERATOR, MINIMUM_THRESHOLD};
     use alloc::vec::Vec;
     use curve25519_dalek::Scalar;
-    use ed25519::signature::Signer;
+    use ed25519::signature::{Signer, SignerMut};
     use ed25519_dalek::{Signature, SigningKey as SK, VerifyingKey as VK};
     use rand::Rng;
     use rand_core::OsRng;
@@ -82,13 +82,13 @@ mod tests {
         let participants = parameters.participants;
         let threshold = parameters.threshold;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
 
-        let public_keys: Vec<VK> = keypairs
+        let public_keys: Vec<VerifyingKey> = keypairs
             .iter_mut()
-            .map(|kp| kp.0.verifying_key().clone())
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -124,12 +124,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = Vec::new();
@@ -161,12 +162,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -202,12 +204,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -245,12 +248,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -284,12 +288,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -321,13 +326,13 @@ mod tests {
         let threshold = parameters.threshold;
         let mut rng = OsRng;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey(SK::generate(&mut rng)))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
 
-        let public_keys: Vec<VK> = keypairs
-            .iter()
-            .map(|kp| kp.0.verifying_key().clone())
+        let public_keys: Vec<VerifyingKey> = keypairs
+            .iter_mut()
+            .map(|kp| kp.verifying_key.clone())
             .collect();
 
         let mut messages: Vec<AllMessage> = keypairs
@@ -338,7 +343,7 @@ mod tests {
             })
             .collect();
 
-        messages[1].signature = keypairs[1].0.sign(b"invalid");
+        messages[1].signature = keypairs[1].try_sign(b"invalid").unwrap();
 
         let result = keypairs[0].simplpedpop_recipient_all(&messages);
 
@@ -354,7 +359,7 @@ mod tests {
     #[test]
     fn test_invalid_threshold() {
         let mut rng = OsRng;
-        let mut keypair = SigningKey(SK::generate(&mut rng));
+        let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair.simplpedpop_contribute_all(
             1,
@@ -376,7 +381,7 @@ mod tests {
     #[test]
     fn test_invalid_participants() {
         let mut rng = OsRng;
-        let mut keypair = SigningKey(SK::generate(&mut rng));
+        let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair
             .simplpedpop_contribute_all(2, vec![VK::from(Scalar::random(&mut rng) * GENERATOR)]);
@@ -398,7 +403,7 @@ mod tests {
     #[test]
     fn test_threshold_greater_than_participants() {
         let mut rng = OsRng;
-        let mut keypair = SigningKey(SK::generate(&mut rng));
+        let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair.simplpedpop_contribute_all(
             3,
@@ -417,4 +422,3 @@ mod tests {
         }
     }
 }
-*/
