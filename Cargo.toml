@@ -1,0 +1,24 @@
+[package]
+name = "olaf"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+curve25519-dalek = { version = "4.1.2", default-features = false, features = [
+    "digest",
+    "rand_core",
+] }
+ed25519 = { git = "https://github.com/Fiono11/signatures", package = "ed25519", default-features = false, features = [
+    "alloc",
+] }
+ed25519-dalek = { version = "2", features = ["rand_core", "hazmat"] }
+sha2 = { version = "0.10", default-features = false }
+merlin = { version = "3", default-features = false }
+rand_core = { version = "0.6.4", default-features = false, features = [
+    "getrandom",
+] }
+serde = { version = "1.0", default-features = false }
+zeroize = { version = "1.3", default-features = false }
+rand = "0.8"
