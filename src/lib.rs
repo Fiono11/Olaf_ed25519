@@ -37,8 +37,8 @@ pub struct VerifyingShare(pub VerifyingKey);
 /// The signing keypair of a participant generated in the SimplPedPoP protocol, used to produce its signatures shares in the FROST protocol.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SigningKeypair {
-    secret_key: SecretKey,
-    verifying_key: VerifyingKey,
+    pub secret_key: SecretKey,
+    pub verifying_key: VerifyingKey,
 }
 
 impl SigningKeypair {

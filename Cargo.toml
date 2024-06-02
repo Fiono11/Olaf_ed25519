@@ -13,7 +13,7 @@ curve25519-dalek = { version = "4.1.2", default-features = false, features = [
 ed25519 = { git = "https://github.com/Fiono11/signatures", package = "ed25519", default-features = false, features = [
     "alloc",
 ] }
-ed25519-dalek = { version = "2", features = ["rand_core", "hazmat"] }
+ed25519-dalek = { version = "2.1.1", features = ["rand_core", "hazmat"] }
 sha2 = { version = "0.10", default-features = false }
 merlin = { version = "3", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
