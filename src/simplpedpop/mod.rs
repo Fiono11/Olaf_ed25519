@@ -59,11 +59,6 @@ impl SigningKeypair {
         rng.fill_bytes(&mut encryption_nonce);
         encryption_transcript.append_message(b"nonce", &encryption_nonce);
 
-        let secret = *secret_polynomial
-            .coefficients
-            .first()
-            .expect("This never fails because the minimum threshold is 2");
-
         let mut nonce: [u8; 32] = [0u8; 32];
         rng.fill_bytes(&mut nonce);
 

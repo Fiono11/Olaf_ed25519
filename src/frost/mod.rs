@@ -5,19 +5,17 @@
 mod errors;
 mod types;
 
-pub use self::types::{SigningCommitments, SigningNonces, SigningPackage};
-use self::{
-    errors::{FROSTError, FROSTResult},
-    types::{
-        BindingFactor, BindingFactorList, CommonData, GroupCommitment, SignatureShare, SignerData,
-    },
+use self::types::{
+    BindingFactor, BindingFactorList, CommonData, GroupCommitment, SignatureShare, SignerData,
 };
+pub use self::types::{SigningCommitments, SigningNonces, SigningPackage};
 use super::{
     simplpedpop::SPPOutput, Identifier, SigningKeypair, ThresholdPublicKey, VerifyingShare,
 };
 use alloc::vec::Vec;
 use curve25519_dalek::Scalar;
 use ed25519::{signature::Verifier, Signature};
+pub use errors::*;
 use merlin::Transcript;
 use rand_core::{CryptoRng, RngCore};
 use sha2::{Digest, Sha512};
