@@ -114,21 +114,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "ed25519"
-version = "2.3.0-pre"
-source = "git+https://github.com/Fiono11/signatures#ee18b4caca3506ee30f8fe31ec6b9e0cced41192"
-dependencies = [
- "signature",
-]
-
-[[package]]
 name = "ed25519-dalek"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a3daa8e81a3963a60642bcc1f90a670680bd4a77535faa384e9d1c79d620871"
 dependencies = [
  "curve25519-dalek",
- "ed25519 2.2.3",
+ "ed25519",
  "rand_core",
  "serde",
  "sha2",
@@ -195,7 +187,7 @@ name = "olaf"
 version = "0.1.0"
 dependencies = [
  "curve25519-dalek",
- "ed25519 2.3.0-pre",
+ "ed25519",
  "ed25519-dalek",
  "merlin",
  "rand",
