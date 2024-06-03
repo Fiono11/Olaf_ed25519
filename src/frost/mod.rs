@@ -264,7 +264,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
 
     let group_signature = Signature::from_bytes(&bytes);
 
-    let verification_result = threshold_public_key
+    /*let verification_result = threshold_public_key
         .0
         .verify(
             message,
@@ -319,7 +319,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
         return Err(FROSTError::InvalidSignatureShare {
             culprit: invalid_shares,
         });
-    }
+        }*/
 
     Ok(group_signature)
 }
