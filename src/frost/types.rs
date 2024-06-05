@@ -68,11 +68,6 @@ pub(super) struct BindingFactor(pub(super) Scalar);
 pub(super) struct BindingFactorList(pub(super) Vec<(u16, BindingFactor)>);
 
 impl BindingFactorList {
-    /// Create a new [`BindingFactorList`] from a map of identifiers to binding factors.
-    pub(super) fn new(binding_factors: Vec<(u16, BindingFactor)>) -> Self {
-        Self(binding_factors)
-    }
-
     pub(super) fn compute(
         signing_commitments: &[SigningCommitments],
         verifying_key: &ThresholdPublicKey,
@@ -116,7 +111,7 @@ impl BindingFactorList {
         binding_factor_input_prefix.extend_from_slice(hash_to_array(&[message]).as_ref());
         binding_factor_input_prefix.extend_from_slice(
             hash_to_array(&[
-                &BindingFactorList::encode_group_commitments(&signing_commitments)[..].as_ref(),
+                &BindingFactorList::encode_group_commitments(signing_commitments)[..].as_ref(),
             ])
             .as_ref(),
         );
@@ -536,12 +531,12 @@ impl SigningPackage {
 
 #[cfg(test)]
 mod tests {
-    use super::{SigningCommitments, SigningNonces, SigningPackage};
+    use super::{SigningCommitments, SigningNonces};
     use crate::{
-        simplpedpop::AllMessage, test_utils::generate_parameters, SigningKeypair, VerifyingKey,
+        frost::SigningPackage, simplpedpop::AllMessage, test_utils::generate_parameters,
+        SigningKeypair, VerifyingKey,
     };
     use alloc::vec::Vec;
-    use ed25519_dalek::SigningKey;
     use rand_core::OsRng;
 
     #[test]
@@ -633,9 +628,10 @@ mod tests {
             .unwrap();
 
         let signing_package_bytes = signing_package.to_bytes();
-        //let deserialized_signing_package =
-        //SigningPackage::from_bytes(&signing_package_bytes).unwrap();
 
-        //assert!(deserialized_signing_package == signing_package);
+        let deserialized_signing_package =
+            SigningPackage::from_bytes(&signing_package_bytes).unwrap();
+
+        assert!(deserialized_signing_package == signing_package);
     }
 }

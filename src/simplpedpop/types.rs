@@ -96,20 +96,20 @@ impl Drop for SecretShare {
 impl SecretShare {
     pub(super) fn encrypt(
         &self,
-        mut transcript: &mut Transcript,
+        transcript: &mut Transcript,
         i: usize,
         recipient: &VerifyingKey,
         encryption_nonce: &[u8],
         key_exchange: &EdwardsPoint,
     ) -> EncryptedSecretShare {
         // We tweak by i too since encrypton_nonce is not truly a nonce.
-        transcript.commit_bytes(b"i", &i.to_le_bytes());
+        transcript.append_message(b"i", &i.to_le_bytes());
 
         transcript.append_message(b"recipient", &recipient.to_bytes());
         transcript.append_message(b"kex", &key_exchange.compress().to_bytes());
 
         // Afaik redundant for merlin, but attacks get better.
-        transcript.commit_bytes(b"nonce", encryption_nonce);
+        transcript.append_message(b"nonce", encryption_nonce);
 
         let mut buf = [0; 64];
         transcript.challenge_bytes(b"encryption scalar", &mut buf);
@@ -128,18 +128,18 @@ pub struct EncryptedSecretShare(pub(super) Scalar);
 impl EncryptedSecretShare {
     pub(super) fn decrypt(
         &self,
-        mut transcript: &mut Transcript,
+        transcript: &mut Transcript,
         i: usize,
         recipient: &VerifyingKey,
         encryption_nonce: &[u8],
         key_exchange: &EdwardsPoint,
     ) -> SecretShare {
-        transcript.commit_bytes(b"i", &i.to_le_bytes());
+        transcript.append_message(b"i", &i.to_le_bytes());
 
         transcript.append_message(b"recipient", &recipient.to_bytes());
         transcript.append_message(b"kex", &key_exchange.compress().to_bytes());
 
-        transcript.commit_bytes(b"nonce", &encryption_nonce);
+        transcript.append_message(b"nonce", encryption_nonce);
 
         let mut buf = [0; 64];
         transcript.challenge_bytes(b"encryption scalar", &mut buf);
@@ -409,7 +409,6 @@ impl MessageContent {
 
         let ephemeral_key =
             VerifyingKey::from_bytes(&ephemeral_key_bytes).map_err(SPPError::InvalidPublicKey)?;
-        cursor += PUBLIC_KEY_LENGTH;
 
         Ok(MessageContent {
             sender,
@@ -575,8 +574,7 @@ impl SPPOutput {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_utils::generate_parameters;
-    use ed25519_dalek::SigningKey;
+    use crate::{test_utils::generate_parameters, SigningKeypair};
     use merlin::Transcript;
     use rand_core::OsRng;
 
@@ -586,13 +584,13 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey::generate(&mut OsRng))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut OsRng))
             .collect();
 
-        let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key()).collect();
+        let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key).collect();
 
-        /*let message: AllMessage = keypairs[0]
+        let message: AllMessage = keypairs[0]
             .simplpedpop_contribute_all(threshold as u16, public_keys.clone())
             .unwrap();
 
@@ -600,7 +598,7 @@ mod tests {
 
         let deserialized_message = AllMessage::from_bytes(&bytes).expect("Failed to deserialize");
 
-        assert_eq!(message, deserialized_message);*/
+        assert_eq!(message, deserialized_message);
     }
 
     #[test]
@@ -609,15 +607,15 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut keypairs: Vec<SigningKey> = (0..participants)
-            .map(|_| SigningKey::generate(&mut OsRng))
+        let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            .map(|_| SigningKeypair::generate(&mut OsRng))
             .collect();
 
-        let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key()).collect();
+        let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key).collect();
 
-        //let mut all_messages = Vec::new();
+        let mut all_messages = Vec::new();
 
-        /*for i in 0..participants {
+        for i in 0..participants {
             let message: AllMessage = keypairs[i]
                 .simplpedpop_contribute_all(threshold as u16, public_keys.clone())
                 .unwrap();
@@ -633,7 +631,7 @@ mod tests {
         let deserialized_spp_output_message =
             SPPOutputMessage::from_bytes(&bytes).expect("Deserialization failed");
 
-            assert_eq!(deserialized_spp_output_message, spp_output.0);*/
+        assert_eq!(deserialized_spp_output_message, spp_output.0);
     }
 
     #[test]

@@ -9,14 +9,11 @@ use self::types::{
     BindingFactor, BindingFactorList, CommonData, GroupCommitment, SignatureShare, SignerData,
 };
 pub use self::types::{SigningCommitments, SigningNonces, SigningPackage};
-use super::{
-    simplpedpop::SPPOutput, Identifier, SigningKeypair, ThresholdPublicKey, VerifyingShare,
-};
+use super::{simplpedpop::SPPOutput, Identifier, SigningKeypair, VerifyingShare};
 use alloc::vec::Vec;
 use curve25519_dalek::Scalar;
 use ed25519::{signature::Verifier, Signature};
 pub use errors::*;
-use merlin::Transcript;
 use rand_core::{CryptoRng, RngCore};
 use sha2::{Digest, Sha512};
 
@@ -158,7 +155,7 @@ impl SigningKeypair {
 
         preimage.extend_from_slice(group_commitment.0.compress().as_bytes());
         preimage.extend_from_slice(spp_output.threshold_public_key.0.as_bytes());
-        preimage.extend_from_slice(&message);
+        preimage.extend_from_slice(message);
 
         let challenge = hash_to_scalar(&[&preimage[..]]);
 
@@ -248,7 +245,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
     }
 
     let binding_factor_list: BindingFactorList =
-        BindingFactorList::compute(signing_commitments, &threshold_public_key, message, &[]);
+        BindingFactorList::compute(signing_commitments, threshold_public_key, message, &[]);
 
     let group_commitment = GroupCommitment::compute(signing_commitments, &binding_factor_list)?;
 
@@ -288,7 +285,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
 
         preimage.extend_from_slice(group_commitment.0.compress().as_bytes());
         preimage.extend_from_slice(spp_output.threshold_public_key.0.as_bytes());
-        preimage.extend_from_slice(&message);
+        preimage.extend_from_slice(message);
 
         let challenge = hash_to_scalar(&[&preimage[..]]);
 
@@ -383,12 +380,9 @@ mod tests {
         types::{SigningCommitments, SigningNonces},
     };
     use crate::{
-        simplpedpop::{AllMessage, Parameters},
-        test_utils::generate_parameters,
-        SigningKeypair, VerifyingKey, MINIMUM_THRESHOLD,
+        simplpedpop::AllMessage, test_utils::generate_parameters, SigningKeypair, VerifyingKey,
     };
     use alloc::vec::Vec;
-    use rand::Rng;
     use rand_core::OsRng;
 
     const NONCES: u8 = 10;
@@ -547,8 +541,6 @@ mod tests {
             let spp_output = kp.simplpedpop_recipient_all(&all_messages).unwrap();
             spp_outputs.push(spp_output);
         }
-
-        let group_public_key = spp_outputs[0].0.spp_output.threshold_public_key;
 
         let mut all_nonces_map: Vec<Vec<SigningNonces>> = Vec::new();
         let mut all_commitments_map: Vec<Vec<SigningCommitments>> = Vec::new();

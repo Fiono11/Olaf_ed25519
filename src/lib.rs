@@ -1,6 +1,8 @@
 //! Implementation of the Olaf protocol (<https://eprint.iacr.org/2023/899>), which is composed of the Distributed
 //! Key Generation (DKG) protocol SimplPedPoP and the Threshold Signing protocol FROST.
 
+#![allow(non_snake_case)]
+
 /// Implementation of the FROST protocol.
 pub mod frost;
 
@@ -14,8 +16,8 @@ use curve25519_dalek::{
 };
 use ed25519::Signature;
 use ed25519_dalek::{
-    hazmat::ExpandedSecretKey, SecretKey, SignatureError, Signer, Verifier, VerifyingKey,
-    KEYPAIR_LENGTH, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH,
+    hazmat::ExpandedSecretKey, SecretKey, SignatureError, Signer, VerifyingKey, KEYPAIR_LENGTH,
+    PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH,
 };
 use merlin::Transcript;
 use rand_core::CryptoRngCore;
@@ -152,11 +154,9 @@ pub(crate) fn scalar_from_canonical_bytes(bytes: [u8; 32]) -> Option<Scalar> {
 pub(crate) mod test_utils {
     use super::MINIMUM_THRESHOLD;
     use crate::{
-        simplpedpop::Parameters, SigningKeypair, VerifyingKey, GENERATOR, PUBLIC_KEY_LENGTH,
-        SECRET_KEY_LENGTH,
+        simplpedpop::Parameters, SigningKeypair, VerifyingKey, GENERATOR, SECRET_KEY_LENGTH,
     };
     use curve25519_dalek::Scalar;
-    use ed25519::signature::Keypair;
     use rand::{thread_rng, Rng, RngCore};
 
     const MAXIMUM_PARTICIPANTS: u16 = 10;
@@ -180,7 +180,7 @@ pub(crate) mod test_utils {
         let mut secret_key = [0; SECRET_KEY_LENGTH];
         thread_rng().fill_bytes(&mut secret_key);
 
-        let mut point = Scalar::random(&mut rng) * GENERATOR;
+        let point = Scalar::random(&mut rng) * GENERATOR;
 
         let verifying_key = VerifyingKey::from_bytes(&point.compress().0).unwrap();
 

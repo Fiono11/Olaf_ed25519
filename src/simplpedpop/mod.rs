@@ -276,8 +276,7 @@ mod tests {
     use crate::{simplpedpop::types::AllMessage, SigningKeypair};
     use alloc::vec::Vec;
     use curve25519_dalek::{edwards::CompressedEdwardsY, Scalar};
-    use ed25519_dalek::{SigningKey, VerifyingKey};
-    use rand::Rng;
+    use ed25519_dalek::VerifyingKey;
     use rand_core::OsRng;
 
     const PROTOCOL_RUNS: usize = 1;

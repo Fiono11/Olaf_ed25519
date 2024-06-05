@@ -52,12 +52,11 @@ mod tests {
     use crate::simplpedpop::types::{
         AllMessage, EncryptedSecretShare, Parameters, RECIPIENTS_HASH_LENGTH,
     };
-    use crate::simplpedpop::{SigningKey, VerifyingKey};
+    use crate::simplpedpop::VerifyingKey;
     use crate::{SigningKeypair, GENERATOR, MINIMUM_THRESHOLD};
     use alloc::vec::Vec;
     use curve25519_dalek::Scalar;
-    use ed25519::signature::{Signer, SignerMut};
-    use ed25519_dalek::{Signature, SigningKey as SK, VerifyingKey as VK};
+    use ed25519::signature::Signer;
     use rand::Rng;
     use rand_core::OsRng;
 
@@ -364,8 +363,8 @@ mod tests {
         let result = keypair.simplpedpop_contribute_all(
             1,
             vec![
-                VK::from(Scalar::random(&mut rng) * GENERATOR),
-                VK::from(Scalar::random(&mut rng) * GENERATOR),
+                VerifyingKey::from(Scalar::random(&mut rng) * GENERATOR),
+                VerifyingKey::from(Scalar::random(&mut rng) * GENERATOR),
             ],
         );
 
@@ -383,8 +382,10 @@ mod tests {
         let mut rng = OsRng;
         let mut keypair = SigningKeypair::generate(&mut rng);
 
-        let result = keypair
-            .simplpedpop_contribute_all(2, vec![VK::from(Scalar::random(&mut rng) * GENERATOR)]);
+        let result = keypair.simplpedpop_contribute_all(
+            2,
+            vec![VerifyingKey::from(Scalar::random(&mut rng) * GENERATOR)],
+        );
 
         match result {
             Ok(_) => panic!("Expected an error, but got Ok."),
@@ -408,8 +409,8 @@ mod tests {
         let result = keypair.simplpedpop_contribute_all(
             3,
             vec![
-                VK::from(Scalar::random(&mut rng) * GENERATOR),
-                VK::from(Scalar::random(&mut rng) * GENERATOR),
+                VerifyingKey::from(Scalar::random(&mut rng) * GENERATOR),
+                VerifyingKey::from(Scalar::random(&mut rng) * GENERATOR),
             ],
         );
 

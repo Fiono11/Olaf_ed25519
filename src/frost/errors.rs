@@ -1,6 +1,6 @@
 //! Errors of the FROST protocol.
 
-use crate::{simplpedpop::SPPError, SignatureError, VerifyingShare};
+use crate::{simplpedpop::SPPError, SignatureError};
 use alloc::vec::Vec;
 use core::array::TryFromSliceError;
 use ed25519_dalek::VerifyingKey;
@@ -119,7 +119,6 @@ mod tests {
         let mut signing_packages = Vec::new();
 
         let message = b"message";
-        let context = b"context";
 
         for (i, spp_output) in spp_outputs.iter().enumerate() {
             let signing_package = spp_output
@@ -199,7 +198,6 @@ mod tests {
         let mut signing_packages = Vec::new();
 
         let message = b"message";
-        let context = b"context";
 
         for (i, spp_output) in spp_outputs.iter().enumerate() {
             let mut signing_package = spp_output
@@ -269,7 +267,6 @@ mod tests {
         let mut signing_packages = Vec::new();
 
         let message = b"message";
-        let context = b"context";
 
         for (i, spp_output) in spp_outputs.iter().enumerate() {
             let signing_package = spp_output
@@ -339,7 +336,6 @@ mod tests {
         let mut signing_packages = Vec::new();
 
         let message = b"message";
-        let context = b"context";
 
         let signing_package = spp_outputs[0]
             .1
@@ -406,7 +402,6 @@ mod tests {
         }
 
         let message = b"message";
-        let context = b"context";
 
         spp_outputs[0].1 = SigningKeypair {
             secret_key: [0; SECRET_KEY_LENGTH],
@@ -471,7 +466,6 @@ mod tests {
         }
 
         let message = b"message";
-        let context = b"context";
 
         spp_outputs[0].0.spp_output.verifying_keys.pop();
 
@@ -533,7 +527,6 @@ mod tests {
         }
 
         let message = b"message";
-        let context = b"context";
 
         all_signing_commitments[0] = SigningCommitments {
             hiding: NonceCommitment(Scalar::random(&mut OsRng) * GENERATOR),
@@ -598,7 +591,6 @@ mod tests {
         }
 
         let message = b"message";
-        let context = b"context";
 
         all_signing_commitments[1].hiding = NonceCommitment(EdwardsPoint::identity());
 
