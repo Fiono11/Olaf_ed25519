@@ -312,7 +312,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
 
         for verifying_share in verifying_shares {
             if !valid_shares.contains(&verifying_share) {
-                invalid_shares.push(verifying_share);
+                invalid_shares.push(verifying_share.0);
             }
         }
 

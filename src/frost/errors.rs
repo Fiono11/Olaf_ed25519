@@ -3,6 +3,7 @@
 use crate::{simplpedpop::SPPError, SignatureError, VerifyingShare};
 use alloc::vec::Vec;
 use core::array::TryFromSliceError;
+use ed25519_dalek::VerifyingKey;
 
 /// A result for the SimplPedPoP protocol.
 pub type FROSTResult<T> = Result<T, FROSTError>;
@@ -23,7 +24,7 @@ pub enum FROSTError {
     /// The signature share is invalid.
     InvalidSignatureShare {
         /// The verifying share(s) of the culprit(s).
-        culprit: Vec<VerifyingShare>,
+        culprit: Vec<VerifyingKey>,
     },
     /// The output of the SimplPedPoP protocol must contain the participant's verifying share.
     InvalidOwnVerifyingShare,
@@ -146,8 +147,8 @@ mod tests {
                     assert_eq!(
                         culprit,
                         vec![
-                            spp_outputs[0].0.spp_output.verifying_keys[0].1,
-                            spp_outputs[0].0.spp_output.verifying_keys[1].1
+                            spp_outputs[0].0.spp_output.verifying_keys[0].1 .0,
+                            spp_outputs[0].0.spp_output.verifying_keys[1].1 .0
                         ]
                     );
                 }
