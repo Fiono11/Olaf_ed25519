@@ -75,7 +75,7 @@ impl SigningKeypair {
 
             let recipient: VerifyingKey = recipients[i as usize];
 
-            //let key_exchange = ephemeral_key.to_scalar() * recipient.point;
+            let scalar = ExpandedSecretKey::from(&ephemeral_key.secret_key).scalar;
 
             let key_exchange = ephemeral_key.to_scalar()
                 * CompressedEdwardsY::from_slice(recipient.as_bytes())

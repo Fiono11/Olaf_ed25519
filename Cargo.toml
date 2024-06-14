@@ -11,7 +11,10 @@ curve25519-dalek = { version = "4.1.2", default-features = false, features = [
     "rand_core",
 ] }
 ed25519 = "2.2"
-ed25519-dalek = { version = "2.1.1", features = ["rand_core", "hazmat"] }
+ed25519-dalek = { path = "../curve25519-dalek/ed25519-dalek", features = [
+    "hazmat",
+    "rand_core",
+] }
 sha2 = { version = "0.10", default-features = false }
 merlin = { version = "3", default-features = false }
 rand_core = { version = "0.6.4", default-features = false, features = [
