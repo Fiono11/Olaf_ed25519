@@ -9,6 +9,7 @@ edition = "2021"
 curve25519-dalek = { version = "4.1.2", default-features = false, features = [
     "digest",
     "rand_core",
+    "zeroize",
 ] }
 ed25519 = "2.2"
 ed25519-dalek = { path = "../curve25519-dalek/ed25519-dalek", features = [
@@ -21,5 +22,5 @@ rand_core = { version = "0.6.4", default-features = false, features = [
     "getrandom",
 ] }
 serde = { version = "1.0", default-features = false }
-zeroize = { version = "1.3", default-features = false }
+zeroize = { version = "1.7", default-features = false }
 rand = "0.8"

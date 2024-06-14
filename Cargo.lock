@@ -92,6 +92,7 @@ dependencies = [
  "rand_core",
  "rustc_version",
  "subtle",
+ "zeroize",
 ]
 
 [[package]]
