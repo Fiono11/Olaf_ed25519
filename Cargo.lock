@@ -69,26 +69,9 @@ version = "4.1.2"
 dependencies = [
  "cfg-if",
  "cpufeatures",
- "curve25519-dalek-derive 0.1.1",
+ "curve25519-dalek-derive",
  "digest",
  "fiat-crypto",
- "rustc_version",
- "subtle",
- "zeroize",
-]
-
-[[package]]
-name = "curve25519-dalek"
-version = "4.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a677b8922c94e01bdbb12126b0bc852f00447528dee1782229af9c720c3f348"
-dependencies = [
- "cfg-if",
- "cpufeatures",
- "curve25519-dalek-derive 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "digest",
- "fiat-crypto",
- "platforms",
  "rand_core",
  "rustc_version",
  "subtle",
@@ -98,17 +81,6 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek-derive"
 version = "0.1.1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "curve25519-dalek-derive"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -151,7 +123,7 @@ name = "ed25519-dalek"
 version = "2.1.1"
 dependencies = [
  "blake2",
- "curve25519-dalek 4.1.2",
+ "curve25519-dalek",
  "ed25519",
  "rand_core",
  "serde",
@@ -217,14 +189,14 @@ dependencies = [
 name = "olaf"
 version = "0.1.0"
 dependencies = [
- "curve25519-dalek 4.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "blake2",
+ "curve25519-dalek",
  "ed25519",
  "ed25519-dalek",
  "merlin",
  "rand",
  "rand_core",
  "serde",
- "sha2",
  "zeroize",
 ]
 
@@ -237,12 +209,6 @@ dependencies = [
  "der",
  "spki",
 ]
-
-[[package]]
-name = "platforms"
-version = "3.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db23d408679286588f4d4644f965003d056e3dd5abcaaa938116871d7ce2fee7"
 
 [[package]]
 name = "ppv-lite86"
@@ -331,17 +297,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "sha2"
-version = "0.10.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "793db75ad2bcafc3ffa7c68b215fee268f537982cd901d132f89c6343f3a3dc8"
-dependencies = [
- "cfg-if",
- "cpufeatures",
- "digest",
 ]
 
 [[package]]

@@ -11,11 +11,11 @@ use self::types::{
 pub use self::types::{SigningCommitments, SigningNonces, SigningPackage};
 use super::{simplpedpop::SPPOutput, Identifier, SigningKeypair, VerifyingShare};
 use alloc::vec::Vec;
+use blake2::{digest::consts::U64, Blake2b, Digest};
 use curve25519_dalek::Scalar;
 use ed25519::{signature::Verifier, Signature};
 pub use errors::*;
 use rand_core::{CryptoRng, RngCore};
-use sha2::{Digest, Sha512};
 
 impl SigningKeypair {
     /// Done once by each participant, to generate _their_ nonces and commitments
@@ -322,7 +322,7 @@ pub fn aggregate(signing_packages: &[SigningPackage]) -> Result<Signature, FROST
 }
 
 pub(super) fn hash_to_array(inputs: &[&[u8]]) -> [u8; 64] {
-    let mut h = Sha512::new();
+    let mut h: Blake2b<U64> = Blake2b::new();
     for i in inputs {
         h.update(i);
     }

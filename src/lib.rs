@@ -11,6 +11,7 @@ pub mod simplpedpop;
 
 extern crate alloc;
 
+use blake2::{digest::consts::U64, Blake2b, Digest};
 use curve25519_dalek::{
     constants::ED25519_BASEPOINT_POINT, edwards::CompressedEdwardsY, EdwardsPoint, Scalar,
 };
@@ -21,7 +22,6 @@ use ed25519_dalek::{
 };
 use merlin::Transcript;
 use rand_core::CryptoRngCore;
-use sha2::{digest::consts::U64, Digest, Sha512};
 
 pub(crate) const MINIMUM_THRESHOLD: u16 = 2;
 pub(crate) const GENERATOR: EdwardsPoint = ED25519_BASEPOINT_POINT;
@@ -91,7 +91,11 @@ impl Signer<Signature> for SigningKeypair {
     /// Sign a message with this signing key's secret key.
     fn try_sign(&self, message: &[u8]) -> Result<Signature, SignatureError> {
         let expanded: ExpandedSecretKey = (&self.secret_key).into();
-        Ok(raw_sign::<Sha512>(&expanded, message, &self.verifying_key))
+        Ok(raw_sign::<Blake2b<U64>>(
+            &expanded,
+            message,
+            &self.verifying_key,
+        ))
     }
 }
 
