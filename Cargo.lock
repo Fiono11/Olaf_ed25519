@@ -152,7 +152,6 @@ dependencies = [
  "blake2",
  "curve25519-dalek 4.1.2",
  "ed25519",
- "generic-array",
  "rand_core",
  "serde",
  "subtle",
