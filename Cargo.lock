@@ -125,7 +125,7 @@ dependencies = [
 [[package]]
 name = "ed25519-dalek"
 version = "2.0.0-rc.3"
-source = "git+https://github.com/Fiono11/ed25519-dalek.git?branch=blakeb2#a4dd5fea125f2080bbd2a506d153ec75ca5e2f73"
+source = "git+https://github.com/Fiono11/ed25519-dalek.git?branch=blakeb2#a77df8faa65b8eb3395248d55f6df53855389c19"
 dependencies = [
  "blake2",
  "curve25519-dalek",
