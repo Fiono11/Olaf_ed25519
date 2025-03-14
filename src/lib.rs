@@ -163,7 +163,7 @@ pub(crate) mod test_utils {
     use curve25519_dalek::Scalar;
     use rand::{thread_rng, Rng, RngCore};
 
-    const MAXIMUM_PARTICIPANTS: u16 = 10;
+    const MAXIMUM_PARTICIPANTS: u16 = 2;
     const MINIMUM_PARTICIPANTS: u16 = 2;
 
     pub(crate) fn generate_parameters() -> Parameters {

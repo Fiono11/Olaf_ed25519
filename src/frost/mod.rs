@@ -383,6 +383,7 @@ mod tests {
         simplpedpop::AllMessage, test_utils::generate_parameters, SigningKeypair, VerifyingKey,
     };
     use alloc::vec::Vec;
+    use ed25519_dalek::Verifier;
     use rand_core::OsRng;
 
     const NONCES: u8 = 10;
@@ -394,9 +395,24 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut keypairs: Vec<SigningKeypair> = (0..participants)
-            .map(|_| SigningKeypair::generate(&mut rng))
-            .collect();
+        let pk1 = [127, 47, 219, 117, 30, 109, 77, 240, 95, 95, 70, 128, 162, 172, 11, 33, 145, 100, 160, 133, 50, 174, 18, 34, 237, 190, 63, 219, 247, 51, 0, 26];
+        let sk1 = [149, 170, 102, 160, 159, 223, 32, 42, 87, 34, 79, 81, 154, 62, 252, 31, 244, 136, 127, 250, 88, 158, 56, 47, 214, 210, 178, 120, 144, 227, 80, 214];
+        let pk2 = [149, 148, 230, 231, 170, 48, 7, 240, 243, 44, 163, 225, 37, 146, 227, 160, 92, 236, 75, 35, 190, 223, 159, 209, 72, 40, 58, 238, 43, 232, 212, 124];
+        let sk2 = [253, 87, 117, 50, 86, 207, 240, 177, 101, 229, 77, 158, 244, 118, 184, 205, 211, 124, 51, 167, 50, 7, 55, 97, 190, 116, 31, 214, 154, 24, 11, 99];
+
+        let keypair1 = SigningKeypair::from_secret_key(&sk1);
+        let keypair2 = SigningKeypair::from_secret_key(&sk2);
+
+        let mut keypairs: Vec<SigningKeypair> = vec![keypair1, keypair2];
+
+        //let mut keypairs: Vec<SigningKeypair> = (0..participants)
+            //.map(|_| SigningKeypair::generate(&mut rng))
+            //.collect();
+
+        for keypair in &keypairs {
+            println!("{:?}", keypair.secret_key);
+            println!("{:?}", keypair.verifying_key.as_bytes());
+        }
 
         let public_keys: Vec<VerifyingKey> =
             keypairs.iter_mut().map(|kp| kp.verifying_key).collect();
@@ -406,6 +422,7 @@ mod tests {
             let message: AllMessage = keypairs[i]
                 .simplpedpop_contribute_all(threshold as u16, public_keys.clone())
                 .unwrap();
+            println!("{:?}", &message.to_bytes());
             all_messages.push(message);
         }
 
@@ -443,7 +460,8 @@ mod tests {
             signing_packages.push(signature_share);
         }
 
-        aggregate(&signing_packages).unwrap();
+        let signature = aggregate(&signing_packages).unwrap();
+        spp_outputs[0].0.spp_output.threshold_public_key.0.verify(message, &signature).unwrap()
     }
 
     #[test]
@@ -510,7 +528,8 @@ mod tests {
             signing_packages.push(signature_share);
         }
 
-        aggregate(&signing_packages).unwrap();
+        let signature = aggregate(&signing_packages).unwrap();
+        spp_outputs[0].0.spp_output.threshold_public_key.0.verify(message, &signature).unwrap()
     }
 
     #[test]
