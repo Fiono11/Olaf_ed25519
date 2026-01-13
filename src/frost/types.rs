@@ -15,7 +15,7 @@ use curve25519_dalek::{
     EdwardsPoint, Scalar,
 };
 use merlin::Transcript;
-use rand_core::{CryptoRng, RngCore};
+use rand::{CryptoRng, RngCore};
 use zeroize::Zeroize;
 
 /// A participant's signature share, which the coordinator will aggregate with all other signer's
@@ -537,7 +537,7 @@ mod tests {
         SigningKeypair, VerifyingKey,
     };
     use alloc::vec::Vec;
-    use rand_core::OsRng;
+    use rand::rng;
 
     #[test]
     fn test_round1_serialization() {
@@ -545,7 +545,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -566,7 +566,7 @@ mod tests {
             .simplpedpop_recipient_all(&all_messages)
             .unwrap();
 
-        let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+        let (signing_nonces, signing_commitments) = spp_output.1.commit();
 
         let nonces_bytes = signing_nonces.clone().to_bytes();
         let commitments_bytes = signing_commitments.clone().to_bytes();
@@ -584,7 +584,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -610,7 +610,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }

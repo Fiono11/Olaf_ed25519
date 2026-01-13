@@ -15,7 +15,7 @@ use blake2::{digest::consts::U64, Blake2b, Digest};
 use curve25519_dalek::Scalar;
 use ed25519::{signature::Verifier, Signature};
 pub use errors::*;
-use rand_core::{CryptoRng, RngCore};
+use rand::rng;
 
 impl SigningKeypair {
     /// Done once by each participant, to generate _their_ nonces and commitments
@@ -28,20 +28,14 @@ impl SigningKeypair {
     /// perform the first round. Batching entails generating more than one
     /// nonce/commitment pair at a time.  Nonces should be stored in secret storage
     /// for later use, whereas the commitments are published.
-    pub fn preprocess<R>(
-        &self,
-        num_nonces: u8,
-        rng: &mut R,
-    ) -> (Vec<SigningNonces>, Vec<SigningCommitments>)
-    where
-        R: CryptoRng + RngCore,
-    {
+    fn preprocess(&self, num_nonces: u8) -> (Vec<SigningNonces>, Vec<SigningCommitments>) {
+        let mut rng = rng();
         let mut signing_nonces: Vec<SigningNonces> = Vec::with_capacity(num_nonces as usize);
         let mut signing_commitments: Vec<SigningCommitments> =
             Vec::with_capacity(num_nonces as usize);
 
         for _ in 0..num_nonces {
-            let nonces = SigningNonces::new(&self.secret_key, rng);
+            let nonces = SigningNonces::new(&self.secret_key, &mut rng);
             signing_commitments.push(SigningCommitments::from(&nonces));
             signing_nonces.push(nonces);
         }
@@ -57,11 +51,8 @@ impl SigningKeypair {
     /// operation.
     ///
     /// [`commit`]: https://www.ietf.org/archive/id/draft-irtf-cfrg-frost-14.html#name-round-one-commitment.
-    pub fn commit<R>(&self, rng: &mut R) -> (SigningNonces, SigningCommitments)
-    where
-        R: CryptoRng + RngCore,
-    {
-        let (mut vec_signing_nonces, mut vec_signing_commitments) = self.preprocess(1, rng);
+    pub fn commit(&self) -> (SigningNonces, SigningCommitments) {
+        let (mut vec_signing_nonces, mut vec_signing_commitments) = self.preprocess(1);
         (
             vec_signing_nonces.pop().expect("must have 1 element"),
             vec_signing_commitments.pop().expect("must have 1 element"),
@@ -384,21 +375,33 @@ mod tests {
     };
     use alloc::vec::Vec;
     use ed25519_dalek::Verifier;
-    use rand_core::OsRng;
+    use rand::rng;
 
     const NONCES: u8 = 10;
 
     #[test]
     fn test_n_of_n_frost_with_simplpedpop() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let parameters = generate_parameters();
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let pk1 = [127, 47, 219, 117, 30, 109, 77, 240, 95, 95, 70, 128, 162, 172, 11, 33, 145, 100, 160, 133, 50, 174, 18, 34, 237, 190, 63, 219, 247, 51, 0, 26];
-        let sk1 = [149, 170, 102, 160, 159, 223, 32, 42, 87, 34, 79, 81, 154, 62, 252, 31, 244, 136, 127, 250, 88, 158, 56, 47, 214, 210, 178, 120, 144, 227, 80, 214];
-        let pk2 = [149, 148, 230, 231, 170, 48, 7, 240, 243, 44, 163, 225, 37, 146, 227, 160, 92, 236, 75, 35, 190, 223, 159, 209, 72, 40, 58, 238, 43, 232, 212, 124];
-        let sk2 = [253, 87, 117, 50, 86, 207, 240, 177, 101, 229, 77, 158, 244, 118, 184, 205, 211, 124, 51, 167, 50, 7, 55, 97, 190, 116, 31, 214, 154, 24, 11, 99];
+        let pk1 = [
+            127, 47, 219, 117, 30, 109, 77, 240, 95, 95, 70, 128, 162, 172, 11, 33, 145, 100, 160,
+            133, 50, 174, 18, 34, 237, 190, 63, 219, 247, 51, 0, 26,
+        ];
+        let sk1 = [
+            149, 170, 102, 160, 159, 223, 32, 42, 87, 34, 79, 81, 154, 62, 252, 31, 244, 136, 127,
+            250, 88, 158, 56, 47, 214, 210, 178, 120, 144, 227, 80, 214,
+        ];
+        let pk2 = [
+            149, 148, 230, 231, 170, 48, 7, 240, 243, 44, 163, 225, 37, 146, 227, 160, 92, 236, 75,
+            35, 190, 223, 159, 209, 72, 40, 58, 238, 43, 232, 212, 124,
+        ];
+        let sk2 = [
+            253, 87, 117, 50, 86, 207, 240, 177, 101, 229, 77, 158, 244, 118, 184, 205, 211, 124,
+            51, 167, 50, 7, 55, 97, 190, 116, 31, 214, 154, 24, 11, 99,
+        ];
 
         let keypair1 = SigningKeypair::from_secret_key(&sk1);
         let keypair2 = SigningKeypair::from_secret_key(&sk2);
@@ -406,8 +409,8 @@ mod tests {
         let mut keypairs: Vec<SigningKeypair> = vec![keypair1, keypair2];
 
         //let mut keypairs: Vec<SigningKeypair> = (0..participants)
-            //.map(|_| SigningKeypair::generate(&mut rng))
-            //.collect();
+        //.map(|_| SigningKeypair::generate(&mut rng))
+        //.collect();
 
         for keypair in &keypairs {
             println!("{:?}", keypair.secret_key);
@@ -437,7 +440,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut OsRng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -461,12 +464,18 @@ mod tests {
         }
 
         let signature = aggregate(&signing_packages).unwrap();
-        spp_outputs[0].0.spp_output.threshold_public_key.0.verify(message, &signature).unwrap()
+        spp_outputs[0]
+            .0
+            .spp_output
+            .threshold_public_key
+            .0
+            .verify(message, &signature)
+            .unwrap()
     }
 
     #[test]
     fn test_t_of_n_frost_with_simplpedpop() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let parameters = generate_parameters();
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
@@ -505,7 +514,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs[..threshold] {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut OsRng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -529,12 +538,18 @@ mod tests {
         }
 
         let signature = aggregate(&signing_packages).unwrap();
-        spp_outputs[0].0.spp_output.threshold_public_key.0.verify(message, &signature).unwrap()
+        spp_outputs[0]
+            .0
+            .spp_output
+            .threshold_public_key
+            .0
+            .verify(message, &signature)
+            .unwrap()
     }
 
     #[test]
     fn test_preprocessing_frost_with_simplpedpop() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let parameters = generate_parameters();
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
@@ -565,7 +580,7 @@ mod tests {
         let mut all_commitments_map: Vec<Vec<SigningCommitments>> = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (nonces, commitments) = spp_output.1.preprocess(NONCES, &mut OsRng);
+            let (nonces, commitments) = spp_output.1.preprocess(NONCES);
 
             all_nonces_map.push(nonces);
             all_commitments_map.push(commitments);

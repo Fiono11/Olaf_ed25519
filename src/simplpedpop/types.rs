@@ -4,9 +4,9 @@ use alloc::vec::Vec;
 use core::iter;
 use curve25519_dalek::{edwards::CompressedEdwardsY, traits::Identity, EdwardsPoint, Scalar};
 use ed25519::Signature;
-use ed25519_dalek::{VerifyingKey, PUBLIC_KEY_LENGTH, SIGNATURE_LENGTH};
+use ed25519_dalek::{Verifier, VerifyingKey, PUBLIC_KEY_LENGTH, SIGNATURE_LENGTH};
 use merlin::Transcript;
-use rand_core::{CryptoRng, RngCore};
+use rand::{CryptoRng, RngCore};
 use zeroize::Zeroize;
 
 use crate::{
@@ -428,7 +428,7 @@ pub struct SPPOutputMessage {
     pub(super) sender: VerifyingKey,
     /// The output of the SimplPedPoP protocol.
     pub spp_output: SPPOutput,
-    pub(super) signature: Signature,
+    pub signature: Signature,
 }
 
 impl SPPOutputMessage {
@@ -482,6 +482,13 @@ impl SPPOutputMessage {
             spp_output,
             signature,
         })
+    }
+
+    /// Verifies the signature of the message.
+    pub fn verify_signature(&self, spp_output_bytes: &[u8]) -> SPPResult<()> {
+        self.sender
+            .verify(spp_output_bytes, &self.signature)
+            .map_err(SPPError::InvalidSignature)
     }
 }
 
@@ -576,7 +583,7 @@ mod tests {
     use super::*;
     use crate::{test_utils::generate_parameters, SigningKeypair};
     use merlin::Transcript;
-    use rand_core::OsRng;
+    use rand::rng;
 
     #[test]
     fn test_serialize_deserialize_all_message() {
@@ -585,7 +592,10 @@ mod tests {
         let threshold = parameters.threshold as usize;
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
-            .map(|_| SigningKeypair::generate(&mut OsRng))
+            .map(|_| {
+                let mut r = rng();
+                SigningKeypair::generate(&mut r)
+            })
             .collect();
 
         let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key).collect();
@@ -608,7 +618,10 @@ mod tests {
         let threshold = parameters.threshold as usize;
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
-            .map(|_| SigningKeypair::generate(&mut OsRng))
+            .map(|_| {
+                let mut r = rng();
+                SigningKeypair::generate(&mut r)
+            })
             .collect();
 
         let public_keys: Vec<VerifyingKey> = keypairs.iter().map(|kp| kp.verifying_key).collect();
@@ -636,7 +649,7 @@ mod tests {
 
     #[test]
     fn test_encryption_and_decryption() {
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         // Generate a random secret
         let secret_scalar = Scalar::random(&mut rng);
@@ -683,7 +696,8 @@ mod tests {
     fn test_generate_polynomial_commitment_valid() {
         let degree = 3;
 
-        let polynomial = SecretPolynomial::generate(degree, &mut OsRng);
+        let mut r = rng();
+        let polynomial = SecretPolynomial::generate(degree, &mut r);
 
         let polynomial_commitment = PolynomialCommitment::commit(&polynomial);
 

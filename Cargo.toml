@@ -6,18 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-curve25519-dalek = { version = "4.1.3", default-features = false, features = [
+curve25519-dalek = { git = "https://github.com/rsnano-node/curve25519-dalek.git", rev = "fbc3a9939608b5d455b8a7f7b3499b37834a8bcb", default-features = false, features = [
     "digest",
     "rand_core",
     "zeroize",
 ] }
 ed25519 = "2.2"
-ed25519-dalek = { git = "https://github.com/Fiono11/ed25519-dalek.git", branch = "blakeb2", features = ["hazmat", "rand_core"] }
+ed25519-dalek = { git = "https://github.com/rsnano-node/ed25519-dalek.git", rev = "1f9d706d7033d34bdc1ed7c1789498c82ec0df10", features = ["legacy_compatibility", "rand_core", "hazmat"] }
 blake2 = "0.10.6"
 merlin = { version = "3", default-features = false }
-rand_core = { version = "0.6.4", default-features = false, features = [
-    "getrandom",
-] }
+rand_core = { version = "0.9.1" }
 serde = { version = "1.0", default-features = false }
 zeroize = { version = "1.7", default-features = false }
-rand = "0.8"
+rand = "0.9"

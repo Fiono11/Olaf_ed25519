@@ -61,7 +61,7 @@ mod tests {
     };
     use alloc::vec::Vec;
     use curve25519_dalek::{traits::Identity, EdwardsPoint, Scalar};
-    use rand_core::OsRng;
+    use rand::rng;
 
     #[test]
     fn test_empty_signing_packages() {
@@ -86,7 +86,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -111,7 +111,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -165,7 +165,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -190,7 +190,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -234,7 +234,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -259,7 +259,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -303,7 +303,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -328,7 +328,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -371,7 +371,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -396,7 +396,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -435,7 +435,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -460,7 +460,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -496,7 +496,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -521,7 +521,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -529,8 +529,8 @@ mod tests {
         let message = b"message";
 
         all_signing_commitments[0] = SigningCommitments {
-            hiding: NonceCommitment(Scalar::random(&mut OsRng) * GENERATOR),
-            binding: NonceCommitment(Scalar::random(&mut OsRng) * GENERATOR),
+            hiding: NonceCommitment(Scalar::random(&mut rng) * GENERATOR),
+            binding: NonceCommitment(Scalar::random(&mut rng) * GENERATOR),
         };
 
         let result = spp_outputs[0].1.sign(
@@ -560,7 +560,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -585,7 +585,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }
@@ -621,7 +621,7 @@ mod tests {
         let participants = parameters.participants as usize;
         let threshold = parameters.threshold as usize;
 
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
             .collect();
@@ -646,7 +646,7 @@ mod tests {
         let mut all_signing_nonces = Vec::new();
 
         for spp_output in &spp_outputs {
-            let (signing_nonces, signing_commitments) = spp_output.1.commit(&mut rng);
+            let (signing_nonces, signing_commitments) = spp_output.1.commit();
             all_signing_nonces.push(signing_nonces);
             all_signing_commitments.push(signing_commitments);
         }

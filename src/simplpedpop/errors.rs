@@ -58,15 +58,15 @@ mod tests {
     use curve25519_dalek::Scalar;
     use ed25519::signature::Signer;
     use rand::Rng;
-    use rand_core::OsRng;
+    use rand::rng;
 
     const MAXIMUM_PARTICIPANTS: u16 = 10;
     const MINIMUM_PARTICIPANTS: u16 = 2;
 
     fn generate_parameters() -> Parameters {
-        let mut rng = rand::thread_rng();
-        let participants = rng.gen_range(MINIMUM_PARTICIPANTS..=MAXIMUM_PARTICIPANTS);
-        let threshold = rng.gen_range(MINIMUM_THRESHOLD..=participants);
+        let mut rng = rand::rng();
+        let participants = rng.random_range(MINIMUM_PARTICIPANTS..=MAXIMUM_PARTICIPANTS);
+        let threshold = rng.random_range(MINIMUM_THRESHOLD..=participants);
 
         Parameters {
             participants,
@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn test_invalid_number_of_messages() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
@@ -121,7 +121,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -159,7 +159,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -201,7 +201,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -245,7 +245,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -285,7 +285,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -323,7 +323,7 @@ mod tests {
         let parameters = generate_parameters();
         let participants = parameters.participants;
         let threshold = parameters.threshold;
-        let mut rng = OsRng;
+        let mut rng = rng();
 
         let mut keypairs: Vec<SigningKeypair> = (0..participants)
             .map(|_| SigningKeypair::generate(&mut rng))
@@ -357,7 +357,7 @@ mod tests {
 
     #[test]
     fn test_invalid_threshold() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair.simplpedpop_contribute_all(
@@ -379,7 +379,7 @@ mod tests {
 
     #[test]
     fn test_invalid_participants() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair.simplpedpop_contribute_all(
@@ -403,7 +403,7 @@ mod tests {
 
     #[test]
     fn test_threshold_greater_than_participants() {
-        let mut rng = OsRng;
+        let mut rng = rng();
         let mut keypair = SigningKeypair::generate(&mut rng);
 
         let result = keypair.simplpedpop_contribute_all(

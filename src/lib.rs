@@ -21,7 +21,7 @@ use ed25519_dalek::{
     PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH,
 };
 use merlin::Transcript;
-use rand_core::CryptoRngCore;
+use rand::{CryptoRng, RngCore};
 
 pub(crate) const MINIMUM_THRESHOLD: u16 = 2;
 pub(crate) const GENERATOR: EdwardsPoint = ED25519_BASEPOINT_POINT;
@@ -72,7 +72,7 @@ impl SigningKeypair {
         Ok(signing_keypair)
     }
 
-    pub fn generate<R: CryptoRngCore + ?Sized>(csprng: &mut R) -> SigningKeypair {
+    pub fn generate<R: RngCore + CryptoRng + ?Sized>(csprng: &mut R) -> SigningKeypair {
         let mut secret = SecretKey::default();
         csprng.fill_bytes(&mut secret);
         Self::from_secret_key(&secret)
@@ -161,15 +161,15 @@ pub(crate) mod test_utils {
         simplpedpop::Parameters, SigningKeypair, VerifyingKey, GENERATOR, SECRET_KEY_LENGTH,
     };
     use curve25519_dalek::Scalar;
-    use rand::{thread_rng, Rng, RngCore};
+    use rand::{rng, Rng, RngCore};
 
     const MAXIMUM_PARTICIPANTS: u16 = 2;
     const MINIMUM_PARTICIPANTS: u16 = 2;
 
     pub(crate) fn generate_parameters() -> Parameters {
-        let mut rng = thread_rng();
-        let participants = rng.gen_range(MINIMUM_PARTICIPANTS..=MAXIMUM_PARTICIPANTS);
-        let threshold = rng.gen_range(MINIMUM_THRESHOLD..=participants);
+        let mut rng = rng();
+        let participants = rng.random_range(MINIMUM_PARTICIPANTS..=MAXIMUM_PARTICIPANTS);
+        let threshold = rng.random_range(MINIMUM_THRESHOLD..=participants);
 
         Parameters {
             participants,
@@ -179,10 +179,10 @@ pub(crate) mod test_utils {
 
     #[test]
     fn test_signing_keypair_serialization() {
-        let mut rng = thread_rng();
+        let mut rng = rng();
 
         let mut secret_key = [0; SECRET_KEY_LENGTH];
-        thread_rng().fill_bytes(&mut secret_key);
+        rng.fill_bytes(&mut secret_key);
 
         let point = Scalar::random(&mut rng) * GENERATOR;
 

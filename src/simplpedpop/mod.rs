@@ -5,11 +5,10 @@ pub use self::types::{AllMessage, Parameters, SPPOutput, SPPOutputMessage};
 use crate::{Identifier, SigningKeypair, ThresholdPublicKey, VerifyingShare, GENERATOR};
 use curve25519_dalek::{edwards::CompressedEdwardsY, traits::Identity, EdwardsPoint, Scalar};
 use ed25519::signature::{SignerMut, Verifier};
-use ed25519_dalek::{hazmat::ExpandedSecretKey, SigningKey, VerifyingKey};
+use ed25519_dalek::{hazmat::ExpandedSecretKey, SecretKey, SigningKey, VerifyingKey};
 pub use errors::*;
 use merlin::Transcript;
-use rand::{thread_rng, RngCore};
-use rand_core::OsRng;
+use rand::{rng, RngCore};
 use types::{
     MessageContent, PolynomialCommitment, SecretPolynomial, SecretShare, ENCRYPTION_NONCE_LENGTH,
     RECIPIENTS_HASH_LENGTH,
@@ -25,7 +24,7 @@ impl SigningKeypair {
         let parameters = Parameters::generate(recipients.len() as u16, threshold);
         parameters.validate()?;
 
-        let mut rng = thread_rng();
+        let mut rng = rng();
 
         // We do not recipients.sort() because the protocol is simpler
         // if we require that all contributions provide the list in
@@ -75,7 +74,11 @@ impl SigningKeypair {
 
             let recipient: VerifyingKey = recipients[i as usize];
 
-            let key_exchange = ephemeral_key.to_scalar()
+            let mut ephemeral_secret_key_bytes = [0u8; 32];
+            ephemeral_secret_key_bytes.copy_from_slice(&ephemeral_key.to_bytes()[..32]);
+            let ephemeral_secret_key: SecretKey = ephemeral_secret_key_bytes;
+            let ephemeral_scalar = ExpandedSecretKey::from(&ephemeral_secret_key).scalar;
+            let key_exchange = ephemeral_scalar
                 * CompressedEdwardsY::from_slice(recipient.as_bytes())
                     .unwrap()
                     .decompress()
@@ -256,7 +259,8 @@ impl SigningKeypair {
         let spp_output = SPPOutputMessage::new(self.verifying_key, spp_output, signature);
 
         let mut nonce: [u8; 32] = [0u8; 32];
-        OsRng.fill_bytes(&mut nonce);
+        let mut rng = rng();
+        rng.fill_bytes(&mut nonce);
 
         let signing_keypair = SigningKeypair {
             secret_key: *total_secret_share.as_bytes(),
@@ -275,7 +279,7 @@ mod tests {
     use alloc::vec::Vec;
     use curve25519_dalek::{edwards::CompressedEdwardsY, Scalar};
     use ed25519_dalek::VerifyingKey;
-    use rand_core::OsRng;
+    use rand::rng;
 
     const PROTOCOL_RUNS: usize = 1;
 
@@ -287,11 +291,17 @@ mod tests {
             let threshold = parameters.threshold as usize;
 
             let mut keypairs: Vec<SigningKeypair> = (0..participants)
-                .map(|_| SigningKeypair::generate(&mut OsRng))
+                .map(|_| {
+                    let mut r = rng();
+                    SigningKeypair::generate(&mut r)
+                })
                 .collect();
 
             let mut recipients_keypairs: Vec<SigningKeypair> = (0..participants)
-                .map(|_| SigningKeypair::generate(&mut OsRng))
+                .map(|_| {
+                    let mut r = rng();
+                    SigningKeypair::generate(&mut r)
+                })
                 .collect();
 
             let public_keys: Vec<VerifyingKey> = recipients_keypairs
